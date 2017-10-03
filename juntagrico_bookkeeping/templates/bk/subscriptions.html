@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load config %}
+{% block page_title %}
+    <h3>Abos</h3>
+{% endblock %}
+
+{% block content %}
+
+    <div>Abos nach Periode</div><br/>
+    <form class="form-inline" action="/bk/subscriptions" method="GET">
+    	<div class="form-group">
+    		<label for="fromdate">Von</label>
+    		<input class="form-control" name="fromdate" type="date" value="{{ fromdate | date:'d.m.Y' }}" />
+    	</div>
+    	<div class="form-group">    	
+    		<label for="tilldate">Bis</label>
+        	<input class="form-control" name="tilldate" type="date" value="{{ tilldate | date:'d.m.Y' }}"/>
+        </div>
+        <input type="submit" value="OK"/>
+    </form> 
+    <br/>
+    <table class="table">
+    	<thead>
+	    	<tr>
+	    		<th>Start</th>
+	    		<th>Ende</th>
+	    		<th>AbonnentIn</th>
+	    		<th>Anzahl</th>
+	    		<th>Bezeichnung</th>
+	    		<th>Konto AbonnentIn</th>
+	    		<th>Konto Abo</th>
+	    		<th>Beitrag</th>
+	    		<th>Rechnung</th>
+	    	</tr>
+    	</thead>
+    	<tbody>
+	        {% for s in subscriptions %}
+	        <tr>
+	        	<td>{{ s.activation_date | date:'d.m.Y' }}</td>
+	        	<td>{{ s.deactivation_date | date:'d.m.Y' }}</td>
+	        	<td>{{ s.primary_member }}</td>
+	        	<td>{{ s.size }}</td>
+	        	<td>{{ s.size_name }}</td>
+	        	<td>{{ s.member_account }}</td>
+	        	<td>{{ s.account }}</td>
+	        	<td>{{ s.price | stringformat:'6.2f' }}</td>
+	        	<td>{{ s.amount_billed | stringformat:'6.2f' }}</td>
+	        </tr>
+	        {% endfor %}
+	    </tbody>
+    </table>
+{% endblock %}
