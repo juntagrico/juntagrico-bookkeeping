@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.db.models import Sum
 from django.shortcuts import render
 from django import forms
-from juntagrico.views import get_menu_dict
+from django.contrib.auth.decorators import permission_required
 from juntagrico_bookkeeping.dao.subscriptiondao import SubscriptionDao
 
 import datetime 
 
-def parse_date(datestr):
-	parts = datestr.split('-')
-	if len(parts) != 3:
-		raise Exception("invalid date value %s", datestr)
-	return datetime.date(int(parts[0]), int(parts[1]), int(parts[2]))	
-
-# @login_required
+@permission_required('juntagrico.is_operations_group')
 def subscriptions(request):
     """
     List of subscriptions
@@ -32,8 +27,9 @@ def subscriptions(request):
     	fromdate = datetime.date(today.year-1, 1, 1)
     	tilldate = datetime.date(today.year-1, 12, 31)
 
-    subscription_entities = SubscriptionDao.subscriptions_by_date(fromdate, tilldate) 
-    print( subscription_entities )
+    entities = SubscriptionDao.subscriptions_by_date(fromdate, tilldate) 
+    # tried the following aggregation, but this would need an additional filter on bills
+    # entities = entities.annotate(amount_billed=Sum('bills__amount'))
 
     def total_billed(subs):
         bills = SubscriptionDao.subscription_bills_by_date(subs, fromdate, tilldate)
@@ -51,14 +47,13 @@ def subscriptions(request):
 	        			'member_account': 'm_acct',
 	        			'account': 'acct',
 	        			'price': s.price,
-	        			'amount_billed': total_billed(s) } for s in subscription_entities]    
+	        			'amount_billed': total_billed(s) } for s in entities]    
 
-    renderdict = get_menu_dict(request)
-    renderdict.update({
+    renderdict = {
     	'form_valid': form.is_valid(),
     	'form_errors': form.errors,
     	'fromdate': fromdate,
     	'tilldate': tilldate,
         'subscriptions': subscriptions
-    })
+    }
     return render(request, "bk/subscriptions.html", renderdict)
