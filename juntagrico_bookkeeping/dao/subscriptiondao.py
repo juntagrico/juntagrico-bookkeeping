@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from juntagrico.models import *
-
+from django.db.models import Sum, Case, When
 
 class SubscriptionDao:
     @staticmethod
@@ -10,10 +10,7 @@ class SubscriptionDao:
         all subscriptions except those that ended before or 
         started after our date range.
         """
-        return Subscription.objects.exclude(deactivation_date__lt=fromdate).exclude(activation_date__gt=tilldate)
-
-    @staticmethod
-    def subscription_bills_by_date(subscription, fromdate, tilldate):
-        return subscription.bills.filter(bill_date__gte=fromdate, bill_date__lte=tilldate)
-
+        subscriptions = Subscription.objects.exclude(deactivation_date__lt=fromdate).exclude(activation_date__gt=tilldate)
+        with_amount_billed = subscriptions.annotate(amount_billed=Sum(Case(When(bills__bill_date__range=(fromdate, tilldate),then='bills__amount'))))
+        return with_amount_billed
 
