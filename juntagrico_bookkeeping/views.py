@@ -1,5 +1,4 @@
 import datetime 
-from io import BytesIO
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -12,7 +11,6 @@ from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
 from juntagrico.util.xls import generate_excell_load_fields
-
 
 
 @permission_required('juntagrico.is_operations_group')
@@ -51,6 +49,7 @@ def subscriptions(request):
             'subscriptions': subscriptions
         })
         return render(request, "bk/subscriptions.html", renderdict)
+
 
 
 def generate_excel(subscriptions):
