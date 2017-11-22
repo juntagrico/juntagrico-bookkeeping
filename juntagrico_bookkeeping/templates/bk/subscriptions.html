@@ -1,7 +1,7 @@
-{% extends "bk/bk_base.html" %}
+{% extends "base.html" %}
 {% load config %}
 {% block page_title %}
-    <h1>Abos</h1>
+    <h3>Abos</h3>
 {% endblock %}
 
 {% block content %}
@@ -46,8 +46,8 @@
 	        	<td>{{ s.primary_member }}</td>
 	        	<td>{{ s.size }}</td>
 	        	<td>{{ s.size_name }}</td>
-	        	<td>{{ s.member_account }}</td>
-	        	<td>{{ s.account }}</td>
+	        	<td>{{ s.primary_member.member_allocation.allocation }}</td>
+	        	<td>{{ s.subscription_allocation.allocation }}</td>
 	        	<td>{{ s.price | stringformat:'6.2f' }}</td>
 	        	<td>{{ s.amount_billed | stringformat:'6.2f' }}</td>
 	        </tr>

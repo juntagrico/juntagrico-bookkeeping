@@ -1,13 +1,19 @@
-# -*- coding: utf-8 -*-
+import datetime 
+from io import BytesIO
+
+from django.http import HttpResponse
 from django.shortcuts import render
 from django import forms
 from django.contrib.auth.decorators import permission_required
+
 from juntagrico_bookkeeping.dao.subscriptiondao import SubscriptionDao
+
+from juntagrico.views import get_menu_dict
+from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
-import datetime 
-from io import BytesIO
-import xlsxwriter
-from django.http import HttpResponse
+from juntagrico.util.xls import generate_excell_load_fields
+
+
 
 @permission_required('juntagrico.is_operations_group')
 def subscriptions(request):
@@ -32,68 +38,32 @@ def subscriptions(request):
     if daterange_form.is_valid():
         fromdate = daterange_form.cleaned_data['fromdate']
         tilldate = daterange_form.cleaned_data['tilldate']
-        entities = SubscriptionDao.subscriptions_by_date(fromdate, tilldate)
+        subscriptions = SubscriptionDao.subscriptions_by_date(fromdate, tilldate)
     else:
-        entities = [] 
-
-    subscriptions = [{  'activation_date': s.activation_date,
-                        'deactivation_date': s.deactivation_date,
-                        'primary_member': s.primary_member_nullsave(),
-                        'size': s.size,
-                        'size_name': s.size_name,
-                        'member_account': 'm_acct',
-                        'account': 'acct',
-                        'price': s.price,
-                        'amount_billed': s.amount_billed } for s in entities]    
+        subscriptions = []   
 
     if request.GET.get('format', '') == "xlsx":
-        return generate_excel(fromdate, tilldate, subscriptions)
-    else:
-        renderdict = {
+        return generate_excel(subscriptions)
+    else:    
+        renderdict = get_menu_dict(request)
+        renderdict .update({
             'daterange_form': daterange_form,
             'subscriptions': subscriptions
-        }
+        })
         return render(request, "bk/subscriptions.html", renderdict)
 
 
-def generate_excel(fromdate, tilldate, subscriptions):
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=Abos.xlsx'
-    output = BytesIO()
-    workbook = xlsxwriter.Workbook(output)
-    worksheet = workbook.add_worksheet()
-
-    fields = [
-        ("Start", "activation_date" ),
-        ("Ende", "deactivation_date"),
-        ("AbonnentIn", "primary_member"),
-        ("Anzahl", "size"),
-        ("Bezeichnung", "size_name"),
-        ("Konto AbonnentIn", "member_account"),
-        ("Konto Abo", "account"),
-        ("Beitrag", "price"),
-        ("Rechnung", "amount_billed")
-    ]
-
-    # title
+def generate_excel(subscriptions):
     
+    fields ={
+        'activation_date':'',
+        'deactivation_date':'',
+        'primary_member':'AbonnentIn',
+        'size':'Grösse',
+        'primary_member.member_allocation.allocation':'Konto AbonnentIn',
+        'subscription_allocation.allocation':'Konto Abo',
+        'price':'Beitrag',
+        'amount_billed':'Rechnung',
+    }
 
-    # header row
-    col = 0
-    row = 0
-    for label, fieldname in fields:
-        worksheet.write_string(row, col, label)
-        col += 1
-
-    # data rows
-    row = 2
-    for subscription in subscriptions:
-        col = 0
-        for label, fieldname in fields:
-            worksheet.write_string(row, col, str(subscription.get(fieldname, "")))
-            col += 1
-        row += 1
-
-    workbook.close()
-    response.write(output.getvalue())
-    return response
+    return generate_excell_load_fields(fields, Subscription, subscriptions)
