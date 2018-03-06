@@ -20,19 +20,19 @@
 
         <div class="form-group">
             <button id="btn_submit" type="submit" class="btn">OK</button>
-            <button id="btn_excel" type="submit" name="format" value="xlsx" class="btn">Excel</button>
+            <button id="btn_excel" type="submit" name="format" value="xlsx" class="btn">Export</button>
         </div>
     </form> 
     <br/><br/>
-    <table class="table">
+    <table class="list table" style="font-size: 14px;">
     	<thead>
 	    	<tr>
 	    		<th>Start</th>
 	    		<th>Ende</th>
-	    		<th>AbonnentIn</th>
+	    		<th>{% config "member_string" %}</th>
 	    		<th>Anzahl</th>
 	    		<th>Bezeichnung</th>
-	    		<th>Konto AbonnentIn</th>
+	    		<th>Konto {% config "member_string" %}</th>
 	    		<th>Konto Abo</th>
 	    		<th>Beitrag</th>
 	    		<th>Rechnung</th>

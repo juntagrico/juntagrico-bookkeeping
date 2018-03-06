@@ -1,4 +1,4 @@
 from django.db import models
 
-from juntagrico_bookkeeping.entity.allocations import *
+from juntagrico_bookkeeping.entity.account import *
 
