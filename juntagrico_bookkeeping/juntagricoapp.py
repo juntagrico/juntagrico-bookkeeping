@@ -4,7 +4,7 @@ def admin_menu_template():
     return ['bk/bookkeeping_admin_menu.html']
     
 def member_inlines():
-    return [MemberAllocationInline]
+    return [MemberAccountInline]
     
-def subscription_inlines():
-    return [SubscriptionAllocationInline]
+def subscriptiontype_inlines():
+    return [SubscriptionTypeAccountInline]

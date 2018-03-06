@@ -59,7 +59,7 @@ def generate_excel(subscriptions):
         'deactivation_date':'',
         'primary_member':'AbonnentIn',
         'size':'Grösse',
-        'primary_member.member_allocation.allocation':'Konto AbonnentIn',
+        'primary_member.member_allocation.allocation':'Konto Mitglied',
         'subscription_allocation.allocation':'Konto Abo',
         'price':'Beitrag',
         'amount_billed':'Rechnung',
