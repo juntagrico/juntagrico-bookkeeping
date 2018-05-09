@@ -1,1 +1,1 @@
-git+http://github.com/ortoloco/juntagrico.git@appplattform
+git+http://github.com/juntagrico/juntagrico.git
