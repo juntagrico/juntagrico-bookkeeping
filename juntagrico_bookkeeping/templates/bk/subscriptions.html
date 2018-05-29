@@ -32,8 +32,6 @@
 	    		<th>{% config "member_string" %}</th>
 	    		<th>Anzahl</th>
 	    		<th>Bezeichnung</th>
-	    		<th>Konto {% config "member_string" %}</th>
-	    		<th>Konto Abo</th>
 	    		<th>Beitrag</th>
 	    		<th>Rechnung</th>
 	    	</tr>
@@ -46,8 +44,6 @@
 	        	<td>{{ s.primary_member }}</td>
 	        	<td>{{ s.size }}</td>
 	        	<td>{{ s.size_name }}</td>
-	        	<td>{{ s.primary_member.member_allocation.allocation }}</td>
-	        	<td>{{ s.subscription_allocation.allocation }}</td>
 	        	<td>{{ s.price | stringformat:'6.2f' }}</td>
 	        	<td>{{ s.amount_billed | stringformat:'6.2f' }}</td>
 	        </tr>
