@@ -6,5 +6,8 @@ def admin_menu_template():
 def member_inlines():
     return [MemberAccountInline]
     
-def subscriptiontype_inlines():
+def subtype_inlines():
     return [SubscriptionTypeAccountInline]
+
+def extrasubcat_inlines():
+    return [ExtraSubscriptionCategoryAccountInline]
