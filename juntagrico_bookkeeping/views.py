@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django import forms
 from django.contrib.auth.decorators import permission_required
 
-from juntagrico_bookkeeping.dao.subscriptiondao import SubscriptionDao
+from juntagrico_bookkeeping.bookkeeping_logic import subscription_bookings_by_date, extrasub_bookings_by_date
 
 from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
-from juntagrico.util.xls import generate_excell_load_fields
+from juntagrico.util.xls import generate_excell
 
 
 @permission_required('juntagrico.is_operations_group')
@@ -36,33 +36,36 @@ def subscriptions(request):
     if daterange_form.is_valid():
         fromdate = daterange_form.cleaned_data['fromdate']
         tilldate = daterange_form.cleaned_data['tilldate']
-        subscriptions = SubscriptionDao.subscriptions_by_date(fromdate, tilldate)
+        # list of bookings for subscriptions and extra subscriptions
+        bookings = subscription_bookings_by_date(fromdate, tilldate)
+        bookings.extend(extrasub_bookings_by_date(fromdate, tilldate))
+        # sort by date and member
+        bookings.sort(key=lambda b: b.docnumber)
     else:
-        subscriptions = []   
+        bookings = []   
 
     if request.GET.get('format', '') == "xlsx":
-        return generate_excel(subscriptions)
+        return generate_excel(bookings)
     else:    
         renderdict = get_menu_dict(request)
         renderdict .update({
             'daterange_form': daterange_form,
-            'subscriptions': subscriptions
+            'bookings': bookings
         })
         return render(request, "bk/subscriptions.html", renderdict)
 
 
 
-def generate_excel(subscriptions):
+def generate_excel(bookings):
     
     fields ={
-        'activation_date':'',
-        'deactivation_date':'',
-        'primary_member':'AbonnentIn',
-        'size':'Grösse',
-        'primary_member.member_allocation.allocation':'Konto Mitglied',
-        'subscription_allocation.allocation':'Konto Abo',
-        'price':'Beitrag',
-        'amount_billed':'Rechnung',
+        'date':'Datum',
+        'docnumber':'Belegnummer',
+        'text':'Text',
+        'debit_account':'Soll',
+        'credit_account': 'Haben',
+        'price':'Betrag',
+        'member_account': 'KS1 (Mitglied)'        
     }
 
-    return generate_excell_load_fields(fields, Subscription, subscriptions)
+    return generate_excell(fields, bookings)

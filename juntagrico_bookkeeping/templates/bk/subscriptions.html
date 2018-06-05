@@ -6,11 +6,11 @@
 
 {% block content %}
 
-    <div>Abos nach Periode</div><br/>
+    <div>Abo-Buchungen nach Periode</div><br/>
     <form class="form-inline" method="GET">
         <div class="form-group">
     		<label for="id_fromdate">Von</label> {{ daterange_form.fromdate }} 
-            <label for="id_tilldate">Bis</label> {{ daterange_form.tilldate }} 
+            <label for="id_tilldate">bis</label> {{ daterange_form.tilldate }} 
             {% if daterange_form.fromdate.errors %}
                 <div class="alert alert-danger">Ungültiges Von Datum</div>
             {% endif %}
@@ -20,32 +20,32 @@
 
         <div class="form-group">
             <button id="btn_submit" type="submit" class="btn">OK</button>
-            <button id="btn_excel" type="submit" name="format" value="xlsx" class="btn">Export</button>
+            <button id="btn_excel" type="submit" name="format" value="xlsx" class="btn">Export Buchungsliste</button>
         </div>
     </form> 
     <br/><br/>
     <table class="list table" style="font-size: 14px;">
     	<thead>
 	    	<tr>
+                <th>Datum</th>
 	    		<th>Start</th>
 	    		<th>Ende</th>
-	    		<th>{% config "member_string" %}</th>
-	    		<th>Anzahl</th>
-	    		<th>Bezeichnung</th>
-	    		<th>Beitrag</th>
-	    		<th>Rechnung</th>
+	    		<th colspan="2">{% config "member_string" %}</th>
+	    		<th colspan="2">Bezeichnung</th>
+	    		<th>Betrag</th>
 	    	</tr>
     	</thead>
-    	<tbody>
-	        {% for s in subscriptions %}
+    	<tbody> 
+	        {% for b in bookings %}
 	        <tr>
-	        	<td>{{ s.activation_date | date:'d.m.Y' }}</td>
-	        	<td>{{ s.deactivation_date | date:'d.m.Y' }}</td>
-	        	<td>{{ s.primary_member }}</td>
-	        	<td>{{ s.size }}</td>
-	        	<td>{{ s.size_name }}</td>
-	        	<td>{{ s.price | stringformat:'6.2f' }}</td>
-	        	<td>{{ s.amount_billed | stringformat:'6.2f' }}</td>
+                <td>{{ b.date }}</td>
+	        	<td>{{ b.activation_date | date:'d.m.Y' }}</td>
+	        	<td>{{ b.deactivation_date | date:'d.m.Y' }}</td>
+	        	<td>{{ b.member }}</td>
+                <td>{{ b.member_account }}</td>
+	        	<td>{{ b.text }}</td>
+                <td>{{ b.credit_account }}</td>
+	        	<td>{{ b.price | stringformat:'6.2f' }}</td>
 	        </tr>
 	        {% endfor %}
 	    </tbody>
