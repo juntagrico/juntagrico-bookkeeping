@@ -17,5 +17,5 @@ from django.conf.urls import url
 from juntagrico_bookkeeping import views as bookkeeping
 
 urlpatterns = [
-    url(r'^bk/subscriptions$', bookkeeping.subscriptions)
+    url(r'^bk/subscription_bookings$', bookkeeping.subscription_bookings)
 ]

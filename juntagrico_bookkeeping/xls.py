@@ -45,7 +45,7 @@ class ExcelWriter(object):
         self.write_header()
 
         # write data rows
-        row = 2
+        row = 1
         for item in list_data:
             col = 0
             for fielddef in self.fields:
@@ -67,11 +67,11 @@ class ExcelWriter(object):
         self.format_columns()
 
     def write_header(self):
-        row = 1
+        row = 0
         col = 0
         # assign format
         header_format = self.workbook.add_format({'bold': True})
-        self.worksheet.set_row(1, None, header_format)
+        self.worksheet.set_row(0, None, header_format)
 
         # write header labels
         for label in self.get_header_labels():
