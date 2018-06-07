@@ -6,7 +6,7 @@
 
 {% block content %}
 
-    <div>Abo-Buchungen nach Periode</div><br/>
+    <div>Abo Buchungen nach Periode</div><br/>
     <form class="form-inline" method="GET">
         <div class="form-group">
     		<label for="id_fromdate">Von</label> {{ daterange_form.fromdate }} 
@@ -38,7 +38,7 @@
     	<tbody> 
 	        {% for b in bookings %}
 	        <tr>
-                <td>{{ b.date }}</td>
+                <td>{{ b.date | date:'d.m.Y'}}</td>
 	        	<td>{{ b.activation_date | date:'d.m.Y' }}</td>
 	        	<td>{{ b.deactivation_date | date:'d.m.Y' }}</td>
 	        	<td>{{ b.member }}</td>

@@ -10,11 +10,12 @@ from juntagrico_bookkeeping.bookkeeping_logic import subscription_bookings_by_da
 from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
-from juntagrico.util.xls import generate_excell
+# from juntagrico.util.xls import generate_excell
+from juntagrico_bookkeeping.xls import generate_excel
 
 
 @permission_required('juntagrico.is_operations_group')
-def subscriptions(request):
+def subscription_bookings(request):
     """
     List of subscriptions
     """
@@ -45,18 +46,18 @@ def subscriptions(request):
         bookings = []   
 
     if request.GET.get('format', '') == "xlsx":
-        return generate_excel(bookings)
+        return export_bookings(bookings)
     else:    
         renderdict = get_menu_dict(request)
         renderdict .update({
             'daterange_form': daterange_form,
             'bookings': bookings
         })
-        return render(request, "bk/subscriptions.html", renderdict)
+        return render(request, "bk/subscription_bookings.html", renderdict)
 
 
 
-def generate_excel(bookings):
+def export_bookings(bookings):
     
     fields ={
         'date':'Datum',
@@ -68,4 +69,5 @@ def generate_excel(bookings):
         'member_account': 'KS1 (Mitglied)'        
     }
 
-    return generate_excell(fields, bookings)
+    # return generate_excell(fields, bookings)
+    return generate_excel(fields.items(), bookings, "buchungen")

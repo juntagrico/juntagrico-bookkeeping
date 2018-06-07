@@ -7,6 +7,13 @@ from juntagrico_bookkeeping.xls import ExcelWriter
 from juntagrico.models import MailTemplate
 
 class ExcelWriterTest(TestCase):
+    """
+    Unit tests for ExcelWriter class in juntagrico_bookkeeping.
+    These tests merely serve as examples on how to use the ExcelWriter or
+    the ExcelWriter class or the associated generate_excel function.
+    At the moment it doesn't perform any meandingful tests but to initiate
+    an export and check if the written excel binary is not empty.
+    """
 
     def test_write_list(self):
         data = [{
