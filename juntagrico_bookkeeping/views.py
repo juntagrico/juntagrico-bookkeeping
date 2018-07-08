@@ -10,9 +10,7 @@ from juntagrico_bookkeeping.bookkeeping_logic import subscription_bookings_by_da
 from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
-# from juntagrico.util.xls import generate_excell
-from juntagrico_bookkeeping.xls import generate_excel
-
+from juntagrico.util.xls import generate_excel
 
 @permission_required('juntagrico.is_operations_group')
 def subscription_bookings(request):
