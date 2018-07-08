@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('juntagrico', '0012_auto_20180529_1447'),
         ('juntagrico_bookkeeping', '0003_settings'),
     ]
 
