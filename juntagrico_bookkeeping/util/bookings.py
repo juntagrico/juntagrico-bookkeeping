@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 from juntagrico.models import Subscription, ExtraSubscription
+from juntagrico.dao.subscriptiondao import SubscriptionDao
+from juntagrico.util.bills import scale_subscription_price
 from juntagrico_bookkeeping.models import Settings
-
-def subscriptions_by_date(fromdate, tilldate):
-    """
-    subscriptions that are active in a certain period
-    all subscriptions except those that ended before or 
-    started after our date range.
-    """
-    return Subscription.objects.exclude(deactivation_date__lt=fromdate).exclude(activation_date__gt=tilldate)
 
 def subscription_bookings_by_date(fromdate, tilldate):
     """
@@ -17,7 +11,7 @@ def subscription_bookings_by_date(fromdate, tilldate):
     For each type that is assigned to a subscription, a separate booking
     is generated.
     """
-    subscriptions = subscriptions_by_date(fromdate, tilldate)
+    subscriptions = SubscriptionDao.subscriptions_by_date(fromdate, tilldate)
     
     # global debtor account on settings object
     debtor_account = Settings.objects.first().debtor_account
@@ -26,13 +20,23 @@ def subscription_bookings_by_date(fromdate, tilldate):
     for subs in subscriptions:
         for subs_type in subs.types.all():
             booking = Booking()
-            booking.price = subscription_price_by_date(subs, fromdate, tilldate)
             booking.date = max(fromdate, subs.activation_date or date.min)
             booking.activation_date = subs.activation_date
             booking.deactivation_date = subs.deactivation_date
             booking.docnumber = gen_document_number(subs, fromdate)
             booking.member = subs.primary_member
             booking.text = "Abo: %s, %s" % (subs_type, subs.primary_member)
+            eff_start = max(fromdate, subs.activation_date or date.min)
+            eff_end = min(tilldate, subs.deactivation_date or date.max)
+            if (eff_start > fromdate) or (eff_end < tilldate):
+                # subscription is activated or deactivate inside our interval
+                # set special marker price and mention interval in text
+                booking.price = 0.99
+                booking.text = "%s, Teilperiode %s - %s" % (booking.text,
+                    eff_start.strftime("%d.%m.%y"), eff_end.strftime("%d.%m.%y"))
+            else:
+                booking.price = scale_subscription_price(subs, fromdate, tilldate)            
+            # accounts
             booking.debit_account = debtor_account  # soll: debitor-konto
             if hasattr(subs_type, "subscriptiontype_account"):
                 booking.credit_account = subs_type.subscriptiontype_account.account
@@ -45,29 +49,6 @@ def subscription_bookings_by_date(fromdate, tilldate):
 
             bookings.append(booking)
     return bookings
-
-def subscription_price_by_date(subscription, fromdate, tilldate, type=None):
-    """
-    calculate subscription price for a certain date interval.
-    if type is specified, the price is calculated for the given type only.
-    Otherwise the price is calculated for all types. 
-    """
-    if fromdate.year != tilldate.year:
-        raise Exception("price_by_date interval must be in one year.")
-
-    year_price = 0      # prices are integer
-    if type:
-        year_price = type.price
-    else:
-        for subs_type in subscription.types.all():
-            year_price += subs_type.price
-
-    days_year = (date(fromdate.year, 12, 31)  - date(fromdate.year, 1, 1)).days + 1
-    subs_start = max(subscription.activation_date or date.min, fromdate)
-    subs_end = min(subscription.deactivation_date or date.max, tilldate)
-    days_subs = (subs_end - subs_start).days + 1
-
-    return year_price * days_subs / days_year
 
 def extrasubscriptions_by_date(fromdate, tilldate):
     """
