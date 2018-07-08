@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django import forms
 from django.contrib.auth.decorators import permission_required
 
-from juntagrico_bookkeeping.bookkeeping_logic import subscription_bookings_by_date, extrasub_bookings_by_date
+from juntagrico_bookkeeping.util.bookings import subscription_bookings_by_date, extrasub_bookings_by_date
 
 from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
