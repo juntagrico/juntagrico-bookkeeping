@@ -2,7 +2,8 @@ import django.test
 from datetime import date
 from juntagrico.models import *
 from juntagrico_bookkeeping.models import *
-from juntagrico_bookkeeping.bookkeeping_logic import *
+from juntagrico_bookkeeping.util.bookings import *
+from juntagrico.util.bills import scale_subscription_price
 
 class SubscriptionTestBase(django.test.TestCase):
     def setUp(self):
@@ -19,7 +20,7 @@ class SubscriptionTestBase(django.test.TestCase):
         subs_size = SubscriptionSize.objects.create(
             name = "Normal",
             long_name = "Normale Grösse",
-            size = 1
+            units = 1
             )
 
         subs_type = SubscriptionType.objects.create(
@@ -99,18 +100,18 @@ class SubscriptionTestBase(django.test.TestCase):
             )
 
 
-class SuscriptionLogicTest(SubscriptionTestBase):
+class ScaleSuscriptionPriceTest(SubscriptionTestBase):
 
     def test_price_by_date_fullyear(self):
         start_date = date(2018, 1, 1)
         end_date = date(2018, 12, 31)
-        price_fullyear = subscription_price_by_date(self.subs, start_date, end_date)
+        price_fullyear = scale_subscription_price(self.subs, start_date, end_date)
         self.assertEqual(1200.0, price_fullyear, "full year")
 
     def test_price_by_date_quarter(self):
         start_date = date(2018, 4, 1)
         end_date = date(2018, 6, 30)
-        price_quarter = subscription_price_by_date(self.subs, start_date, end_date)
+        price_quarter = scale_subscription_price(self.subs, start_date, end_date)
         price_quarter_expected = 1200.0 * (30 + 31 + 30) / 365
         self.assertEqual(price_quarter_expected, price_quarter, "second quarter")
 
@@ -119,10 +120,11 @@ class SuscriptionLogicTest(SubscriptionTestBase):
         self.subs.deactivation_date = date(2018, 9, 30)
         start_date = date(2018, 1, 1)
         end_date = date(2018, 12, 31)
-        price = subscription_price_by_date(self.subs, start_date, end_date)
+        price = scale_subscription_price(self.subs, start_date, end_date)
         price_expected = 1200.0 * (31 + 31 + 30) / 365
         self.assertEqual(price_expected, price, "quarter subscription over a year")
 
+class SubscriptionBookingsTest(SubscriptionTestBase):
     def test_subscription_booking_full_year(self):
         start_date = date(2018, 1, 1)
         end_date = date(2018, 12, 31)
@@ -142,13 +144,14 @@ class SuscriptionLogicTest(SubscriptionTestBase):
         bookings_list = subscription_bookings_by_date(start_date, end_date)
         self.assertEqual(1, len(bookings_list))
         booking = bookings_list[0]
-        price_expected = 1200.0 * (31 + 31 + 30) / 365
+        price_expected = 0.99   # special marker price for partial interval subscription
         self.assertEqual(price_expected, booking.price)
         self.assertEqual(date(2018, 7, 1), booking.date)
         self.assertEqual("180101000000001000000001", booking.docnumber)
         self.assertEqual("1100", booking.debit_account)
         self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
         self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Abo: Normal - Grösse: Normal, Michael Test, Teilperiode 01.07.18 - 30.09.18", booking.text)
 
     def test_generate_document_number_for_subscription(self):
         docnumber = gen_document_number(self.subs, date(2018, 1, 1))
