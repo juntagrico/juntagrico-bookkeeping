@@ -97,6 +97,12 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# VSCode project settings
+.vscode
+
+# Windows specific files
+*.bat
+
 # mkdocs documentation
 /site
 
