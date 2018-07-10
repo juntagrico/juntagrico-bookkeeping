@@ -159,22 +159,7 @@ class SubscriptionBookingsTest(SubscriptionTestBase):
         self.assertEqual(docnumber_expected, docnumber, "document_number for subscription")
 
 
-class ExtraSubscriptionLogicTest(SubscriptionTestBase):
-
-    def test_price_by_date_fullyear(self):
-        start_date = date(2018, 1, 1)
-        end_date = date(2018, 12, 31)
-        price = extrasub_price_by_date(self.extrasubs, start_date, end_date)
-        price_expected = 300
-        self.assertEqual(price_expected, price, "extra subscription full year")
-
-    def test_price_by_date_overlapping(self):
-        start_date = date(2018, 6,1)
-        end_date = date(2018, 9, 30)
-        price = extrasub_price_by_date(self.extrasubs, start_date, end_date)
-        price_expected = (100.0 * 30 / (31 + 28 + 31 + 30 + 31 + 30)) +\
-                        (200.0 * (31 + 31 + 30) / (31 + 31 + 30 + 31 + 30 + 31))
-        self.assertEqual(price_expected, price, "extra subscription june - september")
+class ExtraSubscriptionBookingsTest(SubscriptionTestBase):
 
     def test_generate_document_number_for_extra_subscription(self):
         docnumber = gen_document_number(self.extrasubs, date(2018, 1, 1))
@@ -186,14 +171,110 @@ class ExtraSubscriptionLogicTest(SubscriptionTestBase):
         start_date = date(2018, 1, 1)
         end_date = date(2018, 12, 31)
         bookings_list = extrasub_bookings_by_date(start_date, end_date)
-        self.assertEqual(1, len(bookings_list))
+        self.assertEqual(2, len(bookings_list))
+
         booking = bookings_list[0]
-        self.assertEqual(300, booking.price)
+        self.assertEqual(100, booking.price)
         self.assertEqual(date(2018, 1, 1), booking.date)
         self.assertEqual("180101000000001000000002", booking.docnumber)
         self.assertEqual("1100", booking.debit_account)
         self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
         self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.01.18-30.06.18, Michael Test", booking.text)
+
+        booking = bookings_list[1]
+        self.assertEqual(200, booking.price)
+        self.assertEqual(date(2018, 7, 1), booking.date)
+        self.assertEqual("180701000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.07.18-31.12.18, Michael Test", booking.text)
+    
+    def test_bookings_partial_period(self):
+        """
+        bookings for full year interval.
+        extra-subscription is activated after the start of the interval.
+        the first period should be marked with price of 0.99.
+        """
+        self.extrasubs.activation_date = date(2018, 3, 1)
+        self.extrasubs.save()
+
+        start_date = date(2018, 1, 1)
+        end_date = date(2018, 12, 31)
+        bookings_list = extrasub_bookings_by_date(start_date, end_date)
+        self.assertEqual(2, len(bookings_list))
+
+        booking = bookings_list[0]
+        self.assertEqual(0.99, booking.price)
+        self.assertEqual(date(2018, 1, 1), booking.date)
+        self.assertEqual("180101000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.03.18-30.06.18, Michael Test", booking.text)
+
+        booking = bookings_list[1]
+        self.assertEqual(200, booking.price)
+        self.assertEqual(date(2018, 7, 1), booking.date)
+        self.assertEqual("180701000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.07.18-31.12.18, Michael Test", booking.text)
+
+    def test_bookings_half_year(self):
+        """
+        bookings for half year interval.
+        only 1 period is considered.
+        """
+        start_date = date(2018, 1, 1)
+        end_date = date(2018, 6, 30)
+        bookings_list = extrasub_bookings_by_date(start_date, end_date)
+        self.assertEqual(1, len(bookings_list))
+
+        booking = bookings_list[0]
+        self.assertEqual(100, booking.price)
+        self.assertEqual(date(2018, 1, 1), booking.date)
+        self.assertEqual("180101000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.01.18-30.06.18, Michael Test", booking.text)
+
+    def test_bookings_overlapping(self):
+        """
+        bookings for an interval overlapping the extra-subscription periods.
+        we get 2 bookings marked with "partial" price of 0.99.
+        """
+        start_date = date(2018, 2, 1)
+        end_date = date(2018, 11, 30)
+        bookings_list = extrasub_bookings_by_date(start_date, end_date)
+        self.assertEqual(2, len(bookings_list))
+
+        booking = bookings_list[0]
+        self.assertEqual(0.99, booking.price)
+        self.assertEqual(date(2018, 1, 1), booking.date)
+        self.assertEqual("180101000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.02.18-30.06.18, Michael Test", booking.text)
+
+        booking = bookings_list[1]
+        self.assertEqual(0.99, booking.price)
+        self.assertEqual(date(2018, 7, 1), booking.date)
+        self.assertEqual("180701000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)     
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.07.18-30.11.18, Michael Test", booking.text)
+
+
+
+
+
+
 
 
 
