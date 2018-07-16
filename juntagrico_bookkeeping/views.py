@@ -12,7 +12,7 @@ from juntagrico.models import Subscription
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
 from juntagrico.util.xls import generate_excel
 
-@permission_required('juntagrico.is_operations_group')
+@permission_required('juntagrico.is_book_keeper')
 def subscription_bookings(request):
     """
     List of subscriptions
@@ -54,7 +54,7 @@ def subscription_bookings(request):
         return render(request, "bk/subscription_bookings.html", renderdict)
 
 
-
+@permission_required('juntagrico.is_book_keeper')
 def export_bookings(bookings):
     
     fields ={
