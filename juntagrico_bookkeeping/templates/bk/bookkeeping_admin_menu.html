@@ -1,3 +1,4 @@
+{% if perms.juntagrico.is_book_keeper %}
 <li>
     <a data-toggle="collapse" href="#bk">Buchhaltung<span class="glyphicon glyphicon-chevron-right"></span></a>
     <div class="collapse" id="bk">
@@ -8,3 +9,4 @@
     </ul>
     </div>
 </li>
+{% endif %}
