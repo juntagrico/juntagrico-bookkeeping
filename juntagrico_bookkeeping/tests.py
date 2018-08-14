@@ -142,6 +142,11 @@ class ExtraSubscriptionBookingsTest(SubscriptionTestBase):
         docnumber_expected = "180101000000001000000002"
         self.assertEqual(docnumber_expected, docnumber, "document_number for extra subscription")
 
+    def test_generate_document_number_with_empty_member(self):
+        self.subs.primary_member = None
+        docnumber = gen_document_number(self.subs, date(2018, 1, 1))
+        docnumber_expected = "180101000000000000000001"
+        self.assertEqual(docnumber_expected, docnumber, "document_number with empty member")
 
     def test_bookings_full_year(self):
         start_date = date(2018, 1, 1)
