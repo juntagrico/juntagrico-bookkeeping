@@ -113,14 +113,20 @@ def gen_document_number(entry, range_start):
     that each subscription gets a unique document number per booking period.
 
     Structure of document number:
-    YYMMDD<id of subcription 9-digits>
+    YYMMDD<id of primary member 9-digits><id of subcription 9-digits>
+    
+    If no member is assigned, the member part is all 0.
     """
     date_part = range_start.strftime('%y%m%d')
     if hasattr(entry, 'primary_member'):
         member = entry.primary_member
     else:
         member = entry.main_subscription.primary_member
-    member_part = str(member.id).rjust(9, '0')
+    if member:
+        member_id = str(member.id)
+    else:
+       member_id = ""
+    member_part = member_id.rjust(9, '0')
     entry_part = str(entry.id).rjust(9, '0')
     return date_part + member_part + entry_part
 
