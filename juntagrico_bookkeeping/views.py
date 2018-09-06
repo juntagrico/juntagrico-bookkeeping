@@ -54,7 +54,6 @@ def subscription_bookings(request):
         return render(request, "bk/subscription_bookings.html", renderdict)
 
 
-@permission_required('juntagrico.is_book_keeper')
 def export_bookings(bookings):
     
     fields ={
