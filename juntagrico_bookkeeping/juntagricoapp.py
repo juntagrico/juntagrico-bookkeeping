@@ -1,13 +1,9 @@
+from juntagrico.util import addons
+
 from juntagrico_bookkeeping.admin import *
 
-def admin_menu_template():
-    return ['bk/bookkeeping_admin_menu.html']
-    
-def member_inlines():
-    return [MemberAccountInline]
-    
-def subtype_inlines():
-    return [SubscriptionTypeAccountInline]
 
-def extrasubcat_inlines():
-    return [ExtraSubscriptionCategoryAccountInline]
+addons.config.register_admin_menu('bk/bookkeeping_admin_menu.html')
+addons.config.register_model_inline(Member, MemberAccountInline)
+addons.config.register_model_inline(SubscriptionType, SubscriptionTypeAccountInline)
+addons.config.register_model_inline(ExtraSubscriptionCategory, ExtraSubscriptionCategoryAccountInline)
