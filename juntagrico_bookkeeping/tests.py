@@ -17,8 +17,13 @@ class SubscriptionTestBase(django.test.TestCase):
             phone = "01234567"
             )
 
+        product = SubscriptionProduct.objects.create(
+            name = "Testprodukt"
+        )
+
         subs_size = SubscriptionSize.objects.create(
             name = "Normal",
+            product = product,
             long_name = "Normale Grösse",
             units = 1
             )
@@ -127,7 +132,7 @@ class SubscriptionBookingsTest(SubscriptionTestBase):
         self.assertEqual("1100", booking.debit_account)
         self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
         self.assertEqual("4321", booking.member_account)
-        self.assertEqual("Abo: Normal - Grösse: Normal, Michael Test, Teilperiode 01.07.18 - 30.09.18", booking.text)
+        self.assertEqual("Abo: Normal - Grösse: Normal - Produkt: Testprodukt, Michael Test, Teilperiode 01.07.18 - 30.09.18", booking.text)
 
     def test_generate_document_number_for_subscription(self):
         docnumber = gen_document_number(self.subs, date(2018, 1, 1))
