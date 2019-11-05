@@ -256,6 +256,33 @@ class ExtraSubscriptionBookingsTest(SubscriptionTestBase):
         self.assertEqual("4321", booking.member_account)
         self.assertEqual("Zusatz: Extra 1, 01.07.18-30.11.18, Michael Test", booking.text)
 
+    def test_suppress_short_periods(self):
+        """
+        Bookings for extrasubscriptions with an interval of 1 week or less
+        are suppressed. 
+        They appear sometimes because start date of an extra subscription for 
+        second half year is set to eg 25.06. instead to 01.07. to make sure
+        the first delivery is made.
+        In this case there would appear a booking for first half year with period 25.06-30.06..
+        Bookings like these are suppressed. 
+        """
+        self.extrasubs.activation_date = date(2018, 6, 25)
+        self.extrasubs.save()
+
+        start_date = date(2018, 1, 1)
+        end_date = date(2018, 12, 31)
+        bookings_list = extrasub_bookings_by_date(start_date, end_date)
+        self.assertEqual(1, len(bookings_list))
+
+        booking = bookings_list[0]
+        self.assertEqual(200, booking.price)
+        self.assertEqual(date(2018, 7, 1), booking.date)
+        self.assertEqual("180701000000001000000002", booking.docnumber)
+        self.assertEqual("1100", booking.debit_account)
+        self.assertEqual("", booking.credit_account)     # subscriptiontype account is not assigned
+        self.assertEqual("4321", booking.member_account)
+        self.assertEqual("Zusatz: Extra 1, 01.07.18-31.12.18, Michael Test", booking.text)
+
 
 
 

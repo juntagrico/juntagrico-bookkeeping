@@ -70,14 +70,18 @@ def extrasub_bookings_by_date(fromdate, tilldate):
                 # skip periods outside our interval
                 continue
 
-            # create a booking for each period
-            booking = Booking()
             eff_period_start = max(period_start, extrasub.activation_date or date.min)
             eff_period_end = min(period_end, extrasub.deactivation_date or date.max)
 
             eff_start = max(fromdate, eff_period_start)
             eff_end = min(tilldate, eff_period_end)
 
+            if (eff_end - eff_start).days <= 7:
+                # skip booking for intervals of 1 week or less
+                continue
+
+            # create a booking for each period
+            booking = Booking()
             if (eff_start != period_start) or (eff_end != period_end):
                 # extrasubscription is only active for a part of the period
                 # mark booking as partial with price of 0.99
