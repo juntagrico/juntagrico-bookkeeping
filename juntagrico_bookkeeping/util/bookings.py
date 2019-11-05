@@ -138,4 +138,9 @@ def gen_document_number(entry, range_start):
 
 
 class Booking (object):
-    pass
+    def __init__(self):
+        """
+        We need an empty field on each booking to be able to
+        fill an empty excel column (Belegnummer) on exporting
+        """
+        self.empty_field = ""

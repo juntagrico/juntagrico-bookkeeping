@@ -38,7 +38,7 @@ def subscription_bookings(request):
         # list of bookings for subscriptions and extra subscriptions
         bookings = subscription_bookings_by_date(fromdate, tilldate)
         bookings.extend(extrasub_bookings_by_date(fromdate, tilldate))
-        # sort by date and member
+        # sort by docnumber of booking (date and member)
         bookings.sort(key=lambda b: b.docnumber)
     else:
         bookings = []   
@@ -58,7 +58,7 @@ def export_bookings(bookings):
     
     fields ={
         'date':'Datum',
-        'docnumber':'Belegnummer',
+        'empty_field':'Belegnummer',    # we don't want the docnumbers in excel
         'text':'Text',
         'debit_account':'Soll',
         'credit_account': 'Haben',
