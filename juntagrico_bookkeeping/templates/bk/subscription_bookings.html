@@ -7,21 +7,23 @@
 {% block content %}
 
     <div>Abo Buchungen nach Periode</div><br/>
-    <form class="form-inline" method="GET">
+    <form method="GET">
+        <div class="form-group form-inline">
+            <label for="id_fromdate" class="mr-3">Von</label> {{ daterange_form.fromdate }} 
+            <label for="id_tilldate" class="ml-4 mr-3">bis</label> {{ daterange_form.tilldate }} 
+            <!-- <label for="id_tilldate" class="col-form-label col-md-1">bis</label> <div class="col-md-2">{{ daterange_form.tilldate }} </div> -->
+            <button id="btn_submit" type="submit" class="ml-4 btn btn-success">OK</button>
+        </div>
         <div class="form-group">
-    		<label for="id_fromdate">Von</label> {{ daterange_form.fromdate }} 
-            <label for="id_tilldate">bis</label> {{ daterange_form.tilldate }} 
             {% if daterange_form.fromdate.errors %}
                 <div class="alert alert-danger">Ungültiges Von Datum</div>
             {% endif %}
             {% if daterange_form.tilldate.errors %}
                 <div class="alert alert-danger">Ungültiges Bis Datum</div>
-            {% endif %}
+            {% endif %}      
         </div>
-
-        <div class="form-group">
-            <button id="btn_submit" type="submit" class="btn">OK</button>
-            <button id="btn_excel" type="submit" name="format" value="xlsx" class="btn">Excel Export</button>
+        <div class="form-group row">
+            <button id="btn_excel" type="submit" name="format" value="xlsx" class="col-md-2 btn btn-success">Excel Export</button>
         </div>
     </form> 
     <br/>
