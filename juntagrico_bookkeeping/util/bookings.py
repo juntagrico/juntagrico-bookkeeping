@@ -3,7 +3,7 @@ from datetime import date
 from juntagrico.models import Subscription, ExtraSubscription
 from juntagrico.dao.subscriptiondao import SubscriptionDao
 from juntagrico.dao.extrasubscriptiondao import ExtraSubscriptionDao
-from juntagrico.util.bills import scale_subscription_price
+from juntagrico_bookkeeping.util.billing import scale_subscription_price
 from juntagrico_bookkeeping.models import Settings
 
 def subscription_bookings_by_date(fromdate, tilldate):

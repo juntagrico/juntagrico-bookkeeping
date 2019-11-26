@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from juntagrico_bookkeeping.entity.bill import *
 from juntagrico_bookkeeping.entity.account import *
 from juntagrico_bookkeeping.entity.settings import *
 
@@ -28,3 +29,4 @@ class SettingsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Settings, SettingsAdmin)
+admin.site.register(Bill)
