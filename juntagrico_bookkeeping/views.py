@@ -9,6 +9,7 @@ from juntagrico_bookkeeping.util.bookings import subscription_bookings_by_date, 
 
 from juntagrico.views import get_menu_dict
 from juntagrico.models import Subscription
+from juntagrico_bookkeeping.models import Bill
 from juntagrico.util.temporal import start_of_business_year, start_of_next_business_year
 from juntagrico.util.xls import generate_excel
 
@@ -68,3 +69,20 @@ def export_bookings(bookings):
 
     # return generate_excell(fields, bookings)
     return generate_excel(fields.items(), bookings, "buchungen")
+
+
+@permission_required('juntagrico.is_book_keeper')
+def bills(request):
+    """
+    List of bills per year
+    """
+    renderdict = get_menu_dict(request)
+    if not 'year' in renderdict:
+        renderdict['year'] = datetime.date.today().year
+
+    bills_list = Bill.objects.all()
+    renderdict['bills_list'] = bills_list
+
+    return render(request, "bk/bills.html", renderdict)
+
+

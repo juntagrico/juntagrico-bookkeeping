@@ -1,0 +1,78 @@
+{% extends "bk/list_base.html" %}
+{% load i18n %}
+{% load config %}
+{% block page_title %}
+    <h3>
+        {% trans "Rechnungen" %}
+    </h3>
+{% endblock %}
+{% block list %}
+    <table id="filter-table" class="list table" style="display: table;">
+        <thead>
+            <tr>
+                <th class="filter">
+                    Nummer
+                </th>
+                <th class="filter">
+                    {% trans "Member" %}
+                </th>
+                <th class="filter">
+                    Datum
+                </th>
+                <th class="filter">
+                    Text
+                </th>
+                <th class="filter">
+                    Betrag
+                </th>
+                <th class="filter">
+                    Verrechnung
+                </th>
+                <th class="filter">
+                    V-Betrag
+                </th>
+                <th class="filter">
+                    Total
+                </th>
+                <th class="filter">
+                    Bezahlt
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in bills_list %}
+                <tr>
+                    <td>
+                        {{ bill.ref_number }}
+                    </td>
+                    <td>
+                        {{ bill.member_name }}
+                    </td>
+                    <td>
+                        {{ bill.bill_date |date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ bill.bill_text }}
+                    </td>
+                    <td>
+                        {{ bill.billable_amount }}
+                    </td>
+                    <td>
+                        {{ bill.offset_kind }}
+                    </td>
+                    <td>
+                        {{ bill.offset_amount }}
+                    </td> 
+                    <td>
+                        {{ bill.total_amount }}
+                    </td>  
+                    <td>
+                        {% if bill.paid %}
+                            {{ bill.payment_date |date:"Y-m-d" }}
+                        {% endif %}
+                    </td>                                      
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
